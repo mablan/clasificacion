@@ -1,0 +1,21 @@
+---
+title: "Ensayos y prototipos para el proyecto ICONOS"
+---
+
+El objetivo de este proyecto es el desarrollo de algoritmos
+de clasificación automática y reconocimiento de patrones
+para la aplicación de reglas de negocio en sistemas de
+gestión documental.
+
+
+ - [EDA de textos](01_intro.html): Se implementan algunas
+de las técnicas estadísticas para análisis de textos usando
+el conjunto de datos [Revisiones de productos de Amazon](https://www.kaggle.com/kashnitsky/hierarchical-text-classification)
+que presenta una semejanza al problema de clasificación de
+textos que nos ocupa.
+
+ - [Clasificación](02_clasificacion.html): Un primer ejercicio
+ de clasificación de textos usando el conjunto de datos de
+ quejas al Buró de protección financiera de consumidores de
+ Estados Unidos. El conjunto se puede descargar del sitio de [Kaggle](https://www.kaggle.com/cfpb/us-consumer-finance-complaints?select=consumer_complaints.csv)
+ 
