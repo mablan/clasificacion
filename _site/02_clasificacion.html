@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Magdiel Ablan" />
+
+<meta name="date" content="2020-09-04" />
+
+<title>Clasificación de textos (I)</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/lumen.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 54px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h2 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h3 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h4 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h5 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.section h6 {
+  padding-top: 59px;
+  margin-top: -59px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">iconos</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="01_intro.html">Exploración</a>
+</li>
+<li>
+  <a href="02_clasificacion.html">Clasificación</a>
+</li>
+<li>
+  <a href="recursos.html">Recursos</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="acerca.html">Créditos</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+<li role="separator" class="divider"></li>
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">Clasificación de textos (I)</h1>
+<h3 class="subtitle">Consumer complaints</h3>
+<h4 class="author">Magdiel Ablan</h4>
+<h4 class="date">2020-09-04</h4>
+
+</div>
+
+
+<div id="introducción" class="section level1">
+<h1><span class="header-section-number">1</span> Introducción</h1>
+<p>Vamos a construir un modelo de clasificación para el conjunto de datos de quejas de consumidores al buró de protección financiera de consumidores de EU. El conjunto se puede descargar del sitio de <a href="https://www.kaggle.com/cfpb/us-consumer-finance-complaints?select=consumer_complaints.csv">Kaggle</a>. La fuente original de los datos es el <a href="https://www.consumerfinance.gov/data-research/consumer-complaints/">CFPB</a></p>
+<p>Aquí vamos a seguir de cerca el capítulo 7 del libro de <a href="https://smltar.com/">Hvitfeldt and Silge</a></p>
+<p>Leemos los datos y quitamos los registros con NA en la queja:</p>
+<pre class="r"><code>complaints &lt;- read_csv(&quot;datos/consumer_complaints.csv&quot;, col_types =  
+                cols(consumer_complaint_narrative = col_character(),                        company_public_response = col_character(),
+                     consumer_consent_provided = col_character())) %&gt;% 
+  drop_na(consumer_complaint_narrative) %&gt;% 
+  mutate(date_received = parse_date_time(date_received,&quot;mdY&quot;))
+             
+glimpse(complaints)</code></pre>
+<pre><code>## Rows: 66,806
+## Columns: 18
+## $ date_received                &lt;dttm&gt; 2015-03-19, 2015-03-19, 2015-03-19, 201…
+## $ product                      &lt;chr&gt; &quot;Debt collection&quot;, &quot;Consumer Loan&quot;, &quot;Mor…
+## $ sub_product                  &lt;chr&gt; &quot;Other (i.e. phone, health club, etc.)&quot;,…
+## $ issue                        &lt;chr&gt; &quot;Cont&#39;d attempts collect debt not owed&quot;,…
+## $ sub_issue                    &lt;chr&gt; &quot;Debt was paid&quot;, NA, NA, NA, NA, NA, NA,…
+## $ consumer_complaint_narrative &lt;chr&gt; &quot;XXXX has claimed I owe them {$27.00} fo…
+## $ company_public_response      &lt;chr&gt; NA, NA, NA, NA, NA, &quot;Company chooses not…
+## $ company                      &lt;chr&gt; &quot;Diversified Consultants, Inc.&quot;, &quot;M&amp;T Ba…
+## $ state                        &lt;chr&gt; &quot;NY&quot;, &quot;VA&quot;, &quot;CA&quot;, &quot;CA&quot;, &quot;CA&quot;, &quot;CA&quot;, &quot;CA&quot;…
+## $ zipcode                      &lt;chr&gt; &quot;121XX&quot;, &quot;221XX&quot;, &quot;946XX&quot;, &quot;900XX&quot;, &quot;956…
+## $ tags                         &lt;chr&gt; &quot;Older American&quot;, &quot;Servicemember&quot;, NA, &quot;…
+## $ consumer_consent_provided    &lt;chr&gt; &quot;Consent provided&quot;, &quot;Consent provided&quot;, …
+## $ submitted_via                &lt;chr&gt; &quot;Web&quot;, &quot;Web&quot;, &quot;Web&quot;, &quot;Web&quot;, &quot;Web&quot;, &quot;Web&quot;…
+## $ date_sent_to_company         &lt;chr&gt; &quot;03/19/2015&quot;, &quot;03/19/2015&quot;, &quot;03/19/2015&quot;…
+## $ company_response_to_consumer &lt;chr&gt; &quot;Closed with explanation&quot;, &quot;Closed with …
+## $ timely_response              &lt;chr&gt; &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;…
+## $ `consumer_disputed?`         &lt;chr&gt; &quot;No&quot;, &quot;No&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;Yes&quot;, &quot;No&quot;, &quot;…
+## $ complaint_id                 &lt;dbl&gt; 1290516, 1290492, 1290524, 1290253, 1292…</code></pre>
+<p>Hay 66806 registros y 18 variables. Lo que queremos predecir es el producto al que se refiere la queja:</p>
+<pre class="r"><code>complaints %&gt;% 
+  group_by(product) %&gt;% 
+  tally() %&gt;% 
+  arrange(desc(n))</code></pre>
+<pre><code>## # A tibble: 11 x 2
+##    product                     n
+##    &lt;chr&gt;                   &lt;int&gt;
+##  1 Debt collection         17552
+##  2 Mortgage                14919
+##  3 Credit reporting        12526
+##  4 Credit card              7929
+##  5 Bank account or service  5711
+##  6 Consumer Loan            3678
+##  7 Student loan             2128
+##  8 Prepaid card              861
+##  9 Payday loan               726
+## 10 Money transfers           666
+## 11 Other financial service   110</code></pre>
+<p>Así luce la narrativa de las primeras quejas:</p>
+<pre class="r"><code>head(complaints$consumer_complaint_narrative,2)</code></pre>
+<pre><code>## [1] &quot;XXXX has claimed I owe them {$27.00} for XXXX years despite the PROOF of PAYMENT I sent them : canceled check and their ownPAID INVOICE for {$27.00}! \nThey continue to insist I owe them and collection agencies are after me. \nHow can I stop this harassment for a bill I already paid four years ago? \n&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+## [2] &quot;Due to inconsistencies in the amount owed that I was told by M &amp; T Bank and the amount that was reported to the credit reporting agencies, I was advised to write a good will letter in order to address the issue and request the negative entry be removed from my credit report all together. I had a vehicle that was stolen and it was declared a total loss by insurance company. The insurance company and the GAP insurancw companypaid the outstanding balance of the loan, but I was told by M &amp; T Bank that there was still a balance due on the loan. In good faith, without having received any proof as to why there was still a balance, I made a partial payment towards the remaining debt. I then sent the goodwill letter still offering to pay the remainder of the debt, but in exchange for the removal of the negative entry on my credit report. At one point, in XXXX 2015, per my credit monitoring agency, it showed a delinquent balance of {$0.00}, but when I checked my credit report again on XXXX XXXX 2015, there was a delinquent balance of {$1400.00}. The monies from the GAP insurance and my insurance company has been paid, M &amp; T Bank says that I still owe {$620.00}, of which {$210.00} has already been paid. I contacted M &amp; T Bank via return receipt mail, but I have not been given the courtesy of a response yet. \n&quot;</code></pre>
+<p>Quitamos los caracteres de fin de línea:</p>
+<pre class="r"><code>fin_linea &lt;- &quot;\\n&quot;
+
+complaints$consumer_complaint_narrative &lt;- str_replace_all(complaints$consumer_complaint_narrative,fin_linea,&quot;&quot;)
+
+head(complaints$consumer_complaint_narrative,2)</code></pre>
+<pre><code>## [1] &quot;XXXX has claimed I owe them {$27.00} for XXXX years despite the PROOF of PAYMENT I sent them : canceled check and their ownPAID INVOICE for {$27.00}! They continue to insist I owe them and collection agencies are after me. How can I stop this harassment for a bill I already paid four years ago? &quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+## [2] &quot;Due to inconsistencies in the amount owed that I was told by M &amp; T Bank and the amount that was reported to the credit reporting agencies, I was advised to write a good will letter in order to address the issue and request the negative entry be removed from my credit report all together. I had a vehicle that was stolen and it was declared a total loss by insurance company. The insurance company and the GAP insurancw companypaid the outstanding balance of the loan, but I was told by M &amp; T Bank that there was still a balance due on the loan. In good faith, without having received any proof as to why there was still a balance, I made a partial payment towards the remaining debt. I then sent the goodwill letter still offering to pay the remainder of the debt, but in exchange for the removal of the negative entry on my credit report. At one point, in XXXX 2015, per my credit monitoring agency, it showed a delinquent balance of {$0.00}, but when I checked my credit report again on XXXX XXXX 2015, there was a delinquent balance of {$1400.00}. The monies from the GAP insurance and my insurance company has been paid, M &amp; T Bank says that I still owe {$620.00}, of which {$210.00} has already been paid. I contacted M &amp; T Bank via return receipt mail, but I have not been given the courtesy of a response yet. &quot;</code></pre>
+<p>La serie de caracteres “XXX..” que vemos en el texto se usan para proteger la información personal de los consumidores. Hay que verificar siempre que mecanismo es el usado en el conjunto de datos con el que estamos trabajando.</p>
+<p>Las cantidades monetarias están rodeadas por {}, como por ejemplo {$75.00}. Esto puede resultar conveniente si en algún momento queremos extraer esta información.</p>
+</div>
+<div id="un-primer-modelo-de-clasificación" class="section level1">
+<h1><span class="header-section-number">2</span> Un primer modelo de clasificación</h1>
+<p>Trataremos de predecir la variable <code>product</code> a las que se refieren las quejas. En una primera instancia, haremos la clasificación de forma binaria, tratando de determinar si una queja se refiere a “Debt collection” o no.</p>
+<p>También hay que decidir que variables incluir como predictoras en el modelo. Por lo pronto incluiremos:</p>
+<ul>
+<li>La fecha (<code>date_received</code>)</li>
+<li>El texto de la queja (<code>consumer_complaint_narrative</code>)</li>
+<li>La etiqueta (<code>tags</code>)</li>
+</ul>
+<p>La etiqueta puede ser de tres tipos:</p>
+<pre class="r"><code>complaints %&gt;% 
+  group_by(tags) %&gt;% 
+  tally() %&gt;% 
+  arrange(desc(n))</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   tags                              n
+##   &lt;chr&gt;                         &lt;int&gt;
+## 1 &lt;NA&gt;                          55389
+## 2 Older American                 6083
+## 3 Servicemember                  4504
+## 4 Older American, Servicemember   830</code></pre>
+<p>Otra variable que podría ser interesante es la forma en la que se introdujo la queja pero en este caso no es útil porque todas son la misma:</p>
+<pre class="r"><code>complaints %&gt;% 
+  group_by(submitted_via) %&gt;% 
+  tally() %&gt;% 
+  arrange(desc(n))</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   submitted_via     n
+##   &lt;chr&gt;         &lt;int&gt;
+## 1 Web           66806</code></pre>
+<p>Reclasifiquemos <code>product</code> para que tenga solo dos niveles:</p>
+<pre class="r"><code>complaints2class &lt;- complaints %&gt;%
+  mutate(product = factor(if_else(product == &quot;Debt collection&quot;,
+                                  &quot;Debt&quot; ,&quot;Other&quot;))
+         )</code></pre>
+<p>Verifiquemos contando de nuevo cuantos registros en cada categoría:</p>
+<pre class="r"><code>complaints2class %&gt;%  
+  group_by(product) %&gt;% 
+  tally()</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   product     n
+##   &lt;fct&gt;   &lt;int&gt;
+## 1 Debt    17552
+## 2 Other   49254</code></pre>
+<div id="división-entrenamiento-y-prueba" class="section level2">
+<h2><span class="header-section-number">2.1</span> División entrenamiento y prueba</h2>
+<p>Ahora, dividimos los datos en un conjunto de entrenamiento y prueba. Por defecto 75% de los datos se usan para entrenamiento y el restante 25% para prueba.</p>
+<pre class="r"><code>complaints_split &lt;- initial_split(complaints2class, strata = product)
+
+complaints_train &lt;- training(complaints_split)
+complaints_test &lt;- testing(complaints_split)</code></pre>
+<p>Verifiquemos las dimensiones de los conjuntos:</p>
+<pre class="r"><code>dim(complaints_train)</code></pre>
+<pre><code>## [1] 50105    18</code></pre>
+<pre class="r"><code>dim(complaints_test)</code></pre>
+<pre><code>## [1] 16701    18</code></pre>
+<p>Una manera muy usada para evaluar el modelo es dividir el conjunto de entrenamiento en <em>B</em> remuestras, cada una de las cuales esta compuesta de un subconjunto de entrenamiento y un subconjunto de evaluación:</p>
+<p><img src="img/02_remuestreo.png" /> (Fuente: <span class="citation">Kuhn and Johnson (2020)</span> )</p>
+<p>El modelo se ajusta <em>B</em> veces y las medidas de rendimiento del modelo son el promedio de estos ajustes.</p>
+</div>
+<div id="preprocesamiento" class="section level2">
+<h2><span class="header-section-number">2.2</span> Preprocesamiento</h2>
+<p>Primero se especifica “la receta”, el conjunto de pasos necesarios para preparar nuestros datos para el modelo</p>
+<div id="la-receta" class="section level3">
+<h3><span class="header-section-number">2.2.1</span> La receta</h3>
+<p>Como los modelos a usar tienen atributos numéricos, tenemos que convertir las características del texto en datos numéricos.</p>
+<p>Inicializamos el procesamiento usando:</p>
+<pre class="r"><code>complaints_rec &lt;-
+  recipe(product ~ date_received + tags + consumer_complaint_narrative,
+         data = complaints_train
+  )</code></pre>
+<p>Comencemos primero con la variable <code>date_received</code>. El siguiente código:</p>
+<ul>
+<li><p>Extrae el mes y el día de la semana</p></li>
+<li><p>Borra la fecha original</p></li>
+<li><p>Convierte el mes y el día de la semana a variables indicadoras</p></li>
+</ul>
+<pre class="r"><code>complaints_rec &lt;- complaints_rec %&gt;%
+  step_date(date_received, features = c(&quot;month&quot;, &quot;dow&quot;), role = &quot;dates&quot;) %&gt;%
+  step_rm(date_received) %&gt;%
+  step_dummy(has_role(&quot;dates&quot;))</code></pre>
+<p>Seguimos con la variable <code>tags</code>. Aquí:</p>
+<ul>
+<li><p>Creamos la especificación para datos faltantes</p></li>
+<li><p>Convertimos la variable a un tipo indicador</p></li>
+</ul>
+<pre class="r"><code>complaints_rec &lt;- complaints_rec %&gt;%
+  step_unknown(tags) %&gt;%
+  step_dummy(tags)</code></pre>
+<p>Finalmente, procesamos la variable que contiene las quejas. En este caso:</p>
+<ul>
+<li><p>Tokenizamos en palabras</p></li>
+<li><p>Removemos las palabras vacías</p></li>
+<li><p>Seleccionamos solo las 500 variables más frecuentes</p></li>
+<li><p>Calculamos <em>tf-idf</em></p></li>
+</ul>
+<pre class="r"><code>complaints_rec &lt;- complaints_rec %&gt;%
+  step_tokenize(consumer_complaint_narrative) %&gt;%
+  step_stopwords(consumer_complaint_narrative) %&gt;%
+  step_tokenfilter(consumer_complaint_narrative, max_tokens = 500) %&gt;%
+  step_tfidf(consumer_complaint_narrative)</code></pre>
+<p>Una vez especificados los pasos, estamos listos para aplicar o preparar (<code>prep</code>) la receta</p>
+</div>
+<div id="preparar-la-receta" class="section level3">
+<h3><span class="header-section-number">2.2.2</span> Preparar la receta</h3>
+<pre class="r"><code>complaint_prep &lt;- prep(complaints_rec)</code></pre>
+<p>Otra forma alternativa de trabajar es definir un flujo de trabajo o <code>workflow</code> e incluir los pasos de preprocesamiento, el paso de aplicar el modelo, etc. en en el flujo de trabajo usando <code>workflow</code>:</p>
+<pre class="r"><code>complaint_wf &lt;- workflow() %&gt;%
+  add_recipe(complaints_rec)</code></pre>
+<p>El siguiente paso es especificar el modelo</p>
+</div>
+</div>
+<div id="clasificador-bayesiano-ingenuo-naive-bayes-classifier" class="section level2">
+<h2><span class="header-section-number">2.3</span> Clasificador bayesiano ingenuo (<em>Naive Bayes classifier</em>)</h2>
+<p>Es un modelo bastante usado en NLP porque permite el uso de muchas variables como las que se tiene cuando se procesa texto. Se basa en calcular la probabilidad de que un elemento se clasifique de cierta manera usando el teorema de Bayes. El adjetivo “ingenuo” se debe a que se presume que las diferentes variables son independientes una de la otra, lo cual no es una suposición muy realista en la mayoría de los casos.</p>
+<div id="especificación-del-modelo" class="section level3">
+<h3><span class="header-section-number">2.3.1</span> Especificación del modelo</h3>
+<p>Primero especificamos el tipo de modelo y el <em>motor</em> con el cual lo vamos a ejecutar. Lo del motor se refiere a que hay mas de una librería en R que se puede utilizar para la misma tarea y en ese paso especificamos cual es la librería en particular que queremos usar</p>
+<pre class="r"><code>nb_spec &lt;- naive_Bayes() %&gt;%
+  set_mode(&quot;classification&quot;) %&gt;%
+  set_engine(&quot;naivebayes&quot;)
+nb_spec</code></pre>
+<pre><code>## Naive Bayes Model Specification (classification)
+## 
+## Computational engine: naivebayes</code></pre>
+<p>En este paso finalmente ajustamos el modelo. Para eso añadimos al flujo de trabajo la especificación del modelo y llamamos a <code>fit</code>:</p>
+<pre class="r"><code>nb_fit &lt;- complaint_wf %&gt;%
+  add_model(nb_spec) %&gt;%
+  fit(data = complaints_train)</code></pre>
+<p>El siguiente paso es ver que tan bueno resulta el modelo comparando el ajuste con el conjunto de prueba. Sin embargo, es mejor hacer el ajuste usando una validación cruzada de diez pliegos, como discutimos antes.</p>
+</div>
+<div id="evaluación" class="section level3">
+<h3><span class="header-section-number">2.3.2</span> Evaluación</h3>
+<p>Definimos los pliegos. Por defecto son 10, cada uno con el 90% de datos como entrenamiento y el 10% restante de evaluación</p>
+<pre class="r"><code>complaints_folds &lt;- vfold_cv(complaints_train)
+
+complaints_folds</code></pre>
+<pre><code>## #  10-fold cross-validation 
+## # A tibble: 10 x 2
+##    splits             id    
+##    &lt;list&gt;             &lt;chr&gt; 
+##  1 &lt;split [45.1K/5K]&gt; Fold01
+##  2 &lt;split [45.1K/5K]&gt; Fold02
+##  3 &lt;split [45.1K/5K]&gt; Fold03
+##  4 &lt;split [45.1K/5K]&gt; Fold04
+##  5 &lt;split [45.1K/5K]&gt; Fold05
+##  6 &lt;split [45.1K/5K]&gt; Fold06
+##  7 &lt;split [45.1K/5K]&gt; Fold07
+##  8 &lt;split [45.1K/5K]&gt; Fold08
+##  9 &lt;split [45.1K/5K]&gt; Fold09
+## 10 &lt;split [45.1K/5K]&gt; Fold10</code></pre>
+<p>Actualizamos nuestro flujo de trabajo para incluir el modelo:</p>
+<pre class="r"><code>nb_wf &lt;- workflow() %&gt;%
+  add_recipe(complaints_rec) %&gt;%
+  add_model(nb_spec)
+
+nb_wf</code></pre>
+<pre><code>## ══ Workflow ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: naive_Bayes()
+## 
+## ── Preprocessor ──────────────────────────────────────────────────────
+## 9 Recipe Steps
+## 
+## ● step_date()
+## ● step_rm()
+## ● step_dummy()
+## ● step_unknown()
+## ● step_dummy()
+## ● step_tokenize()
+## ● step_stopwords()
+## ● step_tokenfilter()
+## ● step_tfidf()
+## 
+## ── Model ─────────────────────────────────────────────────────────────
+## Naive Bayes Model Specification (classification)
+## 
+## Computational engine: naivebayes</code></pre>
+<p>y ajustamos de nuevo el modelo esta vez usando validación cruzada</p>
+<pre class="r"><code>nb_rs &lt;- fit_resamples(
+  nb_wf,
+  complaints_folds,
+  control = control_resamples(save_pred = TRUE)
+)</code></pre>
+<p>Ahora si recogemos las métricas que evaluan el modelo en todos los pliegos y sus respectivas predicciones:</p>
+<pre class="r"><code>nb_rs_metrics &lt;- collect_metrics(nb_rs)
+nb_rs_predictions &lt;- collect_predictions(nb_rs)</code></pre>
+<p>Las métricas principales son la precisión (<code>accuracy</code>) y el área bajo la curva ROC. Ambas métricas, mientras más cercanas a uno mejor.</p>
+<pre class="r"><code>nb_rs_metrics</code></pre>
+<pre><code>## # A tibble: 2 x 5
+##   .metric  .estimator  mean     n std_err
+##   &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+## 1 accuracy binary     0.740    10 0.00165
+## 2 roc_auc  binary     0.892    10 0.00194</code></pre>
+<p>Podemos dibujar la <a href="https://es.wikipedia.org/wiki/Curva_ROC">curva ROC</a> para el modelo:</p>
+<pre class="r"><code>nb_rs_predictions %&gt;%
+  group_by(id) %&gt;%
+  roc_curve(truth = product, .pred_Debt) %&gt;%
+  autoplot() +
+  labs(
+    color = NULL,
+    title = &quot;Receiver operator curve for US Consumer Finance Complaints&quot;,
+    subtitle = &quot;Each resample fold is shown in a different color&quot;
+  )</code></pre>
+<p><img src="02_clasificacion_files/figure-html/curvaroc-1.png" width="672" /></p>
+<p>También podemos visualizar la <a href="https://en.wikipedia.org/wiki/Confusion_matrix">matriz de confusión</a>, en este caso, para el primer pliego</p>
+<pre class="r"><code>nb_rs_predictions %&gt;%
+  filter(id == &quot;Fold01&quot;) %&gt;%
+  conf_mat(product, .pred_class) %&gt;%
+  autoplot(type = &quot;heatmap&quot;)</code></pre>
+<p><img src="02_clasificacion_files/figure-html/confusion1-1.png" width="672" /></p>
+<p>Veamos si es posible mejorar estos resultados con un modelo diferente</p>
+</div>
+</div>
+<div id="modelo-de-máquinas-de-soporte-vectorial-svm" class="section level2">
+<h2><span class="header-section-number">2.4</span> Modelo de máquinas de soporte vectorial (SVM)</h2>
+<p>Los modelos de máquinas de soporte vectorial son un tipo de modelo de aprendizaje automático que puede usarse en tareas de clasificación y regresión y que ha sido usado con éxito en tareas de clasificación de texto.</p>
+<p>Comparemos el modelo anterior con este modelo a ver cual de los dos tiene mejor <em>performace</em>.</p>
+<p>Igual que antes, especificamos el tipo de modelo y el motor de aprendizaje:</p>
+<pre class="r"><code>svm_spec &lt;- svm_rbf() %&gt;%
+  set_mode(&quot;classification&quot;) %&gt;%
+  set_engine(&quot;liquidSVM&quot;)</code></pre>
+<p>y definimos un nuevo flujo de trabajo con el mismo preprocesamiento y esta nueva especificación de modelo:</p>
+<pre class="r"><code>svm_wf &lt;- workflow() %&gt;%
+  add_recipe(complaints_rec) %&gt;%
+  add_model(svm_spec)</code></pre>
+<p>Ahora ajustamos el modelo. Como SVM no produce probabilidades como el modelo anterior, especificamos metricas un poco diferentes:</p>
+<ul>
+<li><code>sensitivity</code>: sensibilidad o tasa de verdaderos positivos</li>
+<li><code>specificity</code>: especificidad o tasa de verdaderos negativos</li>
+</ul>
+<pre class="r"><code>svm_rs &lt;- fit_resamples(
+  svm_wf,
+  complaints_folds,
+  metrics = metric_set(accuracy, sensitivity, specificity),
+  control = control_resamples(save_pred = TRUE)
+)</code></pre>
+<p>Recopilamos las metricas del ajuste anterior:</p>
+<pre class="r"><code>svm_rs_metrics &lt;- collect_metrics(svm_rs)
+svm_rs_predictions &lt;- collect_predictions(svm_rs)</code></pre>
+<pre class="r"><code>svm_rs_metrics</code></pre>
+<pre><code>## # A tibble: 3 x 5
+##   .metric  .estimator  mean     n std_err
+##   &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+## 1 accuracy binary     0.837    10 0.00189
+## 2 sens     binary     0.641    10 0.00623
+## 3 spec     binary     0.907    10 0.00173</code></pre>
+<p>La precisión mejoró. Veamos ahora la matriz de confusión:</p>
+<pre class="r"><code>svm_rs_predictions %&gt;%
+  filter(id == &quot;Fold01&quot;) %&gt;%
+  conf_mat(product, .pred_class) %&gt;%
+  autoplot(type = &quot;heatmap&quot;)</code></pre>
+<p><img src="02_clasificacion_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p>Mejoró también la separación entre las clases.</p>
+<p>Ahora, pongamosle las cosas un poco más complicadas al modelo haciendo una clasificación múltiple</p>
+</div>
+</div>
+<div id="clasificación-multiple" class="section level1">
+<h1><span class="header-section-number">3</span> Clasificación multiple</h1>
+<pre class="r"><code>set.seed(1234)
+
+multicomplaints_split &lt;- initial_split(complaints, strata = product)
+
+multicomplaints_train &lt;- training(multicomplaints_split)
+multicomplaints_test &lt;- testing(multicomplaints_split)</code></pre>
+<pre class="r"><code>multicomplaints_rec &lt;-
+  recipe(product ~ date_received + tags + consumer_complaint_narrative,
+    data = multicomplaints_train
+  ) %&gt;%
+  step_date(date_received, features = c(&quot;month&quot;, &quot;dow&quot;), role = &quot;dates&quot;) %&gt;%
+  step_rm(date_received) %&gt;%
+  step_dummy(has_role(&quot;dates&quot;)) %&gt;%
+  step_unknown(tags) %&gt;%
+  step_dummy(tags) %&gt;%
+  step_tokenize(consumer_complaint_narrative) %&gt;%
+  step_stopwords(consumer_complaint_narrative) %&gt;%
+  step_tokenfilter(consumer_complaint_narrative, max_tokens = 500) %&gt;%
+  step_tfidf(consumer_complaint_narrative) %&gt;%
+  step_downsample(product)</code></pre>
+<pre class="r"><code>multicomplaints_folds &lt;- vfold_cv(multicomplaints_train)</code></pre>
+<pre class="r"><code>multi_svm_wf &lt;- workflow() %&gt;%
+  add_recipe(multicomplaints_rec) %&gt;%
+  add_model(svm_spec)
+
+multi_svm_wf</code></pre>
+<pre><code>## ══ Workflow ══════════════════════════════════════════════════════════
+## Preprocessor: Recipe
+## Model: svm_rbf()
+## 
+## ── Preprocessor ──────────────────────────────────────────────────────
+## 10 Recipe Steps
+## 
+## ● step_date()
+## ● step_rm()
+## ● step_dummy()
+## ● step_unknown()
+## ● step_dummy()
+## ● step_tokenize()
+## ● step_stopwords()
+## ● step_tokenfilter()
+## ● step_tfidf()
+## ● step_downsample()
+## 
+## ── Model ─────────────────────────────────────────────────────────────
+## Radial Basis Function Support Vector Machine Specification (classification)
+## 
+## Computational engine: liquidSVM</code></pre>
+<pre class="r"><code>multi_svm_rs &lt;- fit_resamples(
+  multi_svm_wf,
+  multicomplaints_folds,
+  metrics = metric_set(accuracy),
+  control = control_resamples(save_pred = TRUE)
+)</code></pre>
+<pre class="r"><code>multi_svm_rs</code></pre>
+<pre><code>## # Resampling results
+## # 10-fold cross-validation 
+## # A tibble: 10 x 5
+##    splits             id     .metrics        .notes          .predictions       
+##    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;          &lt;list&gt;          &lt;list&gt;             
+##  1 &lt;split [45.1K/5K]&gt; Fold01 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,011 × 3…
+##  2 &lt;split [45.1K/5K]&gt; Fold02 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,011 × 3…
+##  3 &lt;split [45.1K/5K]&gt; Fold03 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,011 × 3…
+##  4 &lt;split [45.1K/5K]&gt; Fold04 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,011 × 3…
+##  5 &lt;split [45.1K/5K]&gt; Fold05 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,011 × 3…
+##  6 &lt;split [45.1K/5K]&gt; Fold06 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,011 × 3…
+##  7 &lt;split [45.1K/5K]&gt; Fold07 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,010 × 3…
+##  8 &lt;split [45.1K/5K]&gt; Fold08 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,010 × 3…
+##  9 &lt;split [45.1K/5K]&gt; Fold09 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,010 × 3…
+## 10 &lt;split [45.1K/5K]&gt; Fold10 &lt;tibble [1 × 3… &lt;tibble [0 × 1… &lt;tibble [5,010 × 3…</code></pre>
+<pre class="r"><code>multi_svm_rs_metrics &lt;- collect_metrics(multi_svm_rs)
+multi_svm_rs_predictions &lt;- collect_predictions(multi_svm_rs)</code></pre>
+<pre class="r"><code>multi_svm_rs_metrics</code></pre>
+<pre><code>## # A tibble: 1 x 5
+##   .metric  .estimator  mean     n std_err
+##   &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;
+## 1 accuracy multiclass 0.489    10 0.00564</code></pre>
+<pre class="r"><code>multi_svm_rs_predictions %&gt;%
+  filter(id == &quot;Fold01&quot;) %&gt;%
+  conf_mat(product, .pred_class) %&gt;%
+  autoplot(type = &quot;heatmap&quot;) +
+  scale_y_discrete(labels = function(x) str_wrap(x, 20)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, 20))</code></pre>
+<p><img src="02_clasificacion_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<pre class="r"><code>multi_svm_rs_predictions %&gt;%
+  filter(id == &quot;Fold01&quot;) %&gt;%
+  filter(.pred_class != product) %&gt;%
+  conf_mat(product, .pred_class) %&gt;%
+  autoplot(type = &quot;heatmap&quot;) +
+  scale_y_discrete(labels = function(x) str_wrap(x, 20)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, 20))</code></pre>
+<p><img src="02_clasificacion_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+</div>
+<div id="los-mecanismos-de-anonimización" class="section level1">
+<h1><span class="header-section-number">4</span> Los mecanismos de anonimización</h1>
+</div>
+<div id="referencias" class="section level1 unnumbered">
+<h1>Referencias</h1>
+<div id="refs" class="references">
+<div id="ref-kuhn_johnson_2020">
+<p>Kuhn, Max, and Kjell Johnson. 2020. <em>Feature Engineering and Selection a Practical Approach for Predictive Models</em>. Chapman &amp; Hall/CRC.</p>
+</div>
+</div>
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ2xhc2lmaWNhY2nDs24gZGUgdGV4dG9zIChJKSIKc3VidGl0bGU6ICJDb25zdW1lciBjb21wbGFpbnRzIgphdXRob3I6ICJNYWdkaWVsIEFibGFuIgpkYXRlOiAiYHIgU3lzLkRhdGUoKWAiCm91dHB1dDogCiAgICBodG1sX2RvY3VtZW50OgogICAgICBjb2RlX2Rvd25sb2FkOiB0cnVlIAogICAgICBudW1iZXJfc2VjdGlvbnM6IHllcwogICAgICBjb2RlX2ZvbGRpbmc6IHNob3cKICAgICAgdGhlbWU6IGx1bWVuCiAgICAgIHRvYzogeWVzCiAgICAgIHRvY19mbG9hdDoKICAgICAgICBjb2xsYXBzZWQ6IHllcwplZGl0b3Jfb3B0aW9uczogCiAgY2h1bmtfb3V0cHV0X3R5cGU6IGNvbnNvbGUKYmlibGlvZ3JhcGh5OiByZWZlcmVuY2VzLmJpYgotLS0KCmBgYHtyIHNldHVwLCBpbmNsdWRlPUZBTFNFfQprbml0cjo6b3B0c19jaHVuayRzZXQoZWNobyA9IFRSVUUpCmtuaXRyOjpvcHRzX2NodW5rJHNldChjYWNoZSA9IFRSVUUpCmxpYnJhcnkodGV4dHJlY2lwZXMpCmxpYnJhcnkodGlkeW1vZGVscykKbGlicmFyeSh0aWR5dGV4dCkKbGlicmFyeShzdHJpbmdyKQpsaWJyYXJ5KHJlYWRyKQpsaWJyYXJ5KGRpc2NyaW0pCmxpYnJhcnkocmVhZHIpCmxpYnJhcnkoamFuaXRvcikKbGlicmFyeShsdWJyaWRhdGUpCmxpYnJhcnkodGhlbWlzKQpgYGAKCiMgSW50cm9kdWNjacOzbgoKVmFtb3MgYSBjb25zdHJ1aXIgdW4gbW9kZWxvIGRlIGNsYXNpZmljYWNpw7NuIHBhcmEgZWwgY29uanVudG8gZGUgZGF0b3MgZGUgcXVlamFzIGRlIGNvbnN1bWlkb3JlcyBhbCBidXLDsyBkZSBwcm90ZWNjacOzbiBmaW5hbmNpZXJhIGRlIGNvbnN1bWlkb3JlcyBkZSBFVS4gRWwgY29uanVudG8gc2UgcHVlZGUgZGVzY2FyZ2FyIGRlbCBzaXRpbyBkZSBbS2FnZ2xlXShodHRwczovL3d3dy5rYWdnbGUuY29tL2NmcGIvdXMtY29uc3VtZXItZmluYW5jZS1jb21wbGFpbnRzP3NlbGVjdD1jb25zdW1lcl9jb21wbGFpbnRzLmNzdikuIExhIGZ1ZW50ZSBvcmlnaW5hbCBkZSBsb3MgZGF0b3MgZXMgZWwgCltDRlBCXShodHRwczovL3d3dy5jb25zdW1lcmZpbmFuY2UuZ292L2RhdGEtcmVzZWFyY2gvY29uc3VtZXItY29tcGxhaW50cy8pCgpBcXXDrSB2YW1vcyBhIHNlZ3VpciBkZSBjZXJjYSBlbCBjYXDDrXR1bG8gNyBkZWwgbGlicm8gZGUgW0h2aXRmZWxkdCBhbmQgU2lsZ2VdKGh0dHBzOi8vc21sdGFyLmNvbS8pCgpMZWVtb3MgbG9zIGRhdG9zIHkgcXVpdGFtb3MgbG9zIHJlZ2lzdHJvcyBjb24gTkEgZW4gbGEgcXVlamE6CgpgYGB7ciBsZWN0dXJhfQpjb21wbGFpbnRzIDwtIHJlYWRfY3N2KCJkYXRvcy9jb25zdW1lcl9jb21wbGFpbnRzLmNzdiIsIGNvbF90eXBlcyA9ICAKICAgICAgICAgICAgICAgIGNvbHMoY29uc3VtZXJfY29tcGxhaW50X25hcnJhdGl2ZSA9IGNvbF9jaGFyYWN0ZXIoKSwgICAgICAgICAgICAgICAgICAgICAgICBjb21wYW55X3B1YmxpY19yZXNwb25zZSA9IGNvbF9jaGFyYWN0ZXIoKSwKICAgICAgICAgICAgICAgICAgICAgY29uc3VtZXJfY29uc2VudF9wcm92aWRlZCA9IGNvbF9jaGFyYWN0ZXIoKSkpICU+JSAKICBkcm9wX25hKGNvbnN1bWVyX2NvbXBsYWludF9uYXJyYXRpdmUpICU+JSAKICBtdXRhdGUoZGF0ZV9yZWNlaXZlZCA9IHBhcnNlX2RhdGVfdGltZShkYXRlX3JlY2VpdmVkLCJtZFkiKSkKICAgICAgICAgICAgIApnbGltcHNlKGNvbXBsYWludHMpCmBgYAoKSGF5IGByIGRpbShjb21wbGFpbnRzKVsxXWAgcmVnaXN0cm9zIHkgYHIgZGltKGNvbXBsYWludHMpWzJdYCB2YXJpYWJsZXMuCkxvIHF1ZSBxdWVyZW1vcyBwcmVkZWNpciBlcyBlbCBwcm9kdWN0byBhbCBxdWUgc2UgcmVmaWVyZSBsYSBxdWVqYToKYGBge3J9CmNvbXBsYWludHMgJT4lIAogIGdyb3VwX2J5KHByb2R1Y3QpICU+JSAKICB0YWxseSgpICU+JSAKICBhcnJhbmdlKGRlc2MobikpCmBgYAoKQXPDrSBsdWNlIGxhIG5hcnJhdGl2YSBkZSBsYXMgcHJpbWVyYXMgcXVlamFzOgpgYGB7cn0KaGVhZChjb21wbGFpbnRzJGNvbnN1bWVyX2NvbXBsYWludF9uYXJyYXRpdmUsMikKCmBgYAoKUXVpdGFtb3MgbG9zIGNhcmFjdGVyZXMgZGUgZmluIGRlIGzDrW5lYTogCmBgYHtyfQpmaW5fbGluZWEgPC0gIlxcbiIKCmNvbXBsYWludHMkY29uc3VtZXJfY29tcGxhaW50X25hcnJhdGl2ZSA8LSBzdHJfcmVwbGFjZV9hbGwoY29tcGxhaW50cyRjb25zdW1lcl9jb21wbGFpbnRfbmFycmF0aXZlLGZpbl9saW5lYSwiIikKCmhlYWQoY29tcGxhaW50cyRjb25zdW1lcl9jb21wbGFpbnRfbmFycmF0aXZlLDIpCmBgYAoKTGEgc2VyaWUgZGUgY2FyYWN0ZXJlcyAiWFhYLi4iIHF1ZSB2ZW1vcyBlbiBlbCB0ZXh0byBzZSB1c2FuIHBhcmEgcHJvdGVnZXIgbGEgaW5mb3JtYWNpw7NuIHBlcnNvbmFsIGRlIGxvcyBjb25zdW1pZG9yZXMuIEhheSBxdWUgdmVyaWZpY2FyCnNpZW1wcmUgcXVlIG1lY2FuaXNtbyBlcyBlbCB1c2FkbyBlbiBlbCBjb25qdW50byBkZSBkYXRvcyBjb24gZWwgcXVlCmVzdGFtb3MgdHJhYmFqYW5kby4KCkxhcyBjYW50aWRhZGVzIG1vbmV0YXJpYXMgZXN0w6FuIHJvZGVhZGFzIHBvciB7fSwgY29tbyBwb3IgZWplbXBsbyB7XCQ3NS4wMH0uIEVzdG8gcHVlZGUgcmVzdWx0YXIgY29udmVuaWVudGUgc2kgZW4gYWxnw7puIG1vbWVudG8gcXVlcmVtb3MgZXh0cmFlciBlc3RhIGluZm9ybWFjacOzbi4gCgojIFVuIHByaW1lciBtb2RlbG8gZGUgY2xhc2lmaWNhY2nDs24KClRyYXRhcmVtb3MgZGUgcHJlZGVjaXIgbGEgdmFyaWFibGUgYHByb2R1Y3RgIGEgbGFzIHF1ZSBzZSByZWZpZXJlbgpsYXMgcXVlamFzLiBFbiB1bmEgcHJpbWVyYSBpbnN0YW5jaWEsIGhhcmVtb3MgbGEgY2xhc2lmaWNhY2nDs24gZGUKZm9ybWEgYmluYXJpYSwgdHJhdGFuZG8gZGUgZGV0ZXJtaW5hciBzaSB1bmEgcXVlamEgc2UgcmVmaWVyZSBhIAoiRGVidCBjb2xsZWN0aW9uIiBvIG5vLgoKVGFtYmnDqW4gaGF5IHF1ZSBkZWNpZGlyIHF1ZSB2YXJpYWJsZXMgaW5jbHVpciBjb21vIHByZWRpY3RvcmFzCmVuIGVsIG1vZGVsby4gUG9yIGxvIHByb250byBpbmNsdWlyZW1vczoKCiAtIExhIGZlY2hhIChgZGF0ZV9yZWNlaXZlZGApCiAtIEVsIHRleHRvIGRlIGxhIHF1ZWphIChgY29uc3VtZXJfY29tcGxhaW50X25hcnJhdGl2ZWApCiAtIExhIGV0aXF1ZXRhIChgdGFnc2ApCgpMYSBldGlxdWV0YSBwdWVkZSBzZXIgZGUgdHJlcyB0aXBvczoKCgpgYGB7cn0KY29tcGxhaW50cyAlPiUgCiAgZ3JvdXBfYnkodGFncykgJT4lIAogIHRhbGx5KCkgJT4lIAogIGFycmFuZ2UoZGVzYyhuKSkKCmBgYAoKCgpPdHJhIHZhcmlhYmxlIHF1ZSBwb2Ryw61hIHNlciBpbnRlcmVzYW50ZSBlcyBsYSBmb3JtYSBlbiBsYSBxdWUKc2UgaW50cm9kdWpvIGxhIHF1ZWphIHBlcm8gZW4gZXN0ZSBjYXNvIG5vIGVzIMO6dGlsIHBvcnF1ZSB0b2Rhcwpzb24gbGEgbWlzbWE6CgpgYGB7cn0KY29tcGxhaW50cyAlPiUgCiAgZ3JvdXBfYnkoc3VibWl0dGVkX3ZpYSkgJT4lIAogIHRhbGx5KCkgJT4lIAogIGFycmFuZ2UoZGVzYyhuKSkKCmBgYAoKUmVjbGFzaWZpcXVlbW9zIGBwcm9kdWN0YCBwYXJhIHF1ZSB0ZW5nYSBzb2xvIGRvcyBuaXZlbGVzOgoKYGBge3J9CmNvbXBsYWludHMyY2xhc3MgPC0gY29tcGxhaW50cyAlPiUKICBtdXRhdGUocHJvZHVjdCA9IGZhY3RvcihpZl9lbHNlKHByb2R1Y3QgPT0gIkRlYnQgY29sbGVjdGlvbiIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiRGVidCIgLCJPdGhlciIpKQogICAgICAgICApCmBgYAoKVmVyaWZpcXVlbW9zIGNvbnRhbmRvIGRlIG51ZXZvIGN1YW50b3MgcmVnaXN0cm9zIGVuIGNhZGEgY2F0ZWdvcsOtYToKCmBgYHtyfQpjb21wbGFpbnRzMmNsYXNzICU+JSAgCiAgZ3JvdXBfYnkocHJvZHVjdCkgJT4lIAogIHRhbGx5KCkKCmBgYAoKIyMgRGl2aXNpw7NuIGVudHJlbmFtaWVudG8geSBwcnVlYmEKCkFob3JhLCBkaXZpZGltb3MgbG9zIGRhdG9zIGVuIHVuIGNvbmp1bnRvIGRlIGVudHJlbmFtaWVudG8geSBwcnVlYmEuClBvciBkZWZlY3RvIDc1JSBkZSBsb3MgZGF0b3Mgc2UgdXNhbiBwYXJhIGVudHJlbmFtaWVudG8geSBlbCByZXN0YW50ZSAKMjUlIHBhcmEgcHJ1ZWJhLgoKYGBge3IgZGl2aXNpb259CmNvbXBsYWludHNfc3BsaXQgPC0gaW5pdGlhbF9zcGxpdChjb21wbGFpbnRzMmNsYXNzLCBzdHJhdGEgPSBwcm9kdWN0KQoKY29tcGxhaW50c190cmFpbiA8LSB0cmFpbmluZyhjb21wbGFpbnRzX3NwbGl0KQpjb21wbGFpbnRzX3Rlc3QgPC0gdGVzdGluZyhjb21wbGFpbnRzX3NwbGl0KQpgYGAKClZlcmlmaXF1ZW1vcyBsYXMgZGltZW5zaW9uZXMgZGUgbG9zIGNvbmp1bnRvczoKCmBgYHtyfQpkaW0oY29tcGxhaW50c190cmFpbikKZGltKGNvbXBsYWludHNfdGVzdCkKYGBgCgpVbmEgbWFuZXJhIG11eSB1c2FkYSBwYXJhIGV2YWx1YXIgZWwgbW9kZWxvIGVzIGRpdmlkaXIKZWwgY29uanVudG8gZGUgZW50cmVuYW1pZW50byBlbiAqQiogcmVtdWVzdHJhcywgY2FkYSB1bmEgZGUgbGFzCmN1YWxlcyBlc3RhIGNvbXB1ZXN0YSBkZSB1biBzdWJjb25qdW50byBkZSBlbnRyZW5hbWllbnRvIHkgdW4Kc3ViY29uanVudG8gZGUgZXZhbHVhY2nDs246CgohW10oaW1nLzAyX3JlbXVlc3RyZW8ucG5nKQooRnVlbnRlOiBAa3Vobl9qb2huc29uXzIwMjAgKQoKRWwgbW9kZWxvIHNlIGFqdXN0YSAqQiogdmVjZXMgeSBsYXMgbWVkaWRhcyBkZSByZW5kaW1pZW50byBkZWwKbW9kZWxvIHNvbiBlbCBwcm9tZWRpbyBkZSBlc3RvcyBhanVzdGVzLgoKIyMgUHJlcHJvY2VzYW1pZW50bwoKUHJpbWVybyBzZSBlc3BlY2lmaWNhICJsYSByZWNldGEiLCBlbCBjb25qdW50byBkZSBwYXNvcyBuZWNlc2FyaW9zCnBhcmEgcHJlcGFyYXIgbnVlc3Ryb3MgZGF0b3MgcGFyYSBlbCBtb2RlbG8KCiMjIyBMYSByZWNldGEKQ29tbyBsb3MgbW9kZWxvcyBhIHVzYXIgdGllbmVuIGF0cmlidXRvcyBudW3DqXJpY29zLCB0ZW5lbW9zIHF1ZQpjb252ZXJ0aXIgbGFzIGNhcmFjdGVyw61zdGljYXMgZGVsIHRleHRvIGVuIGRhdG9zIG51bcOpcmljb3MuCgpJbmljaWFsaXphbW9zIGVsIHByb2Nlc2FtaWVudG8gdXNhbmRvOgoKYGBge3J9CmNvbXBsYWludHNfcmVjIDwtCiAgcmVjaXBlKHByb2R1Y3QgfiBkYXRlX3JlY2VpdmVkICsgdGFncyArIGNvbnN1bWVyX2NvbXBsYWludF9uYXJyYXRpdmUsCiAgICAgICAgIGRhdGEgPSBjb21wbGFpbnRzX3RyYWluCiAgKQpgYGAKCkNvbWVuY2Vtb3MgcHJpbWVybyBjb24gbGEgdmFyaWFibGUgYGRhdGVfcmVjZWl2ZWRgLiBFbCBzaWd1aWVudGUgY8OzZGlnbzoKCiAtIEV4dHJhZSBlbCBtZXMgeSBlbCBkw61hIGRlIGxhIHNlbWFuYQoKIC0gQm9ycmEgbGEgZmVjaGEgb3JpZ2luYWwKCiAtIENvbnZpZXJ0ZSBlbCBtZXMgeSBlbCBkw61hIGRlIGxhIHNlbWFuYSBhIHZhcmlhYmxlcyBpbmRpY2Fkb3JhcwoKYGBge3J9CmNvbXBsYWludHNfcmVjIDwtIGNvbXBsYWludHNfcmVjICU+JQogIHN0ZXBfZGF0ZShkYXRlX3JlY2VpdmVkLCBmZWF0dXJlcyA9IGMoIm1vbnRoIiwgImRvdyIpLCByb2xlID0gImRhdGVzIikgJT4lCiAgc3RlcF9ybShkYXRlX3JlY2VpdmVkKSAlPiUKICBzdGVwX2R1bW15KGhhc19yb2xlKCJkYXRlcyIpKQpgYGAKClNlZ3VpbW9zIGNvbiBsYSB2YXJpYWJsZSBgdGFnc2AuIEFxdcOtOgoKIC0gQ3JlYW1vcyBsYSBlc3BlY2lmaWNhY2nDs24gcGFyYSBkYXRvcyBmYWx0YW50ZXMKCiAtIENvbnZlcnRpbW9zIGxhIHZhcmlhYmxlIGEgdW4gdGlwbyBpbmRpY2Fkb3IKCmBgYHtyfQpjb21wbGFpbnRzX3JlYyA8LSBjb21wbGFpbnRzX3JlYyAlPiUKICBzdGVwX3Vua25vd24odGFncykgJT4lCiAgc3RlcF9kdW1teSh0YWdzKQpgYGAKCkZpbmFsbWVudGUsIHByb2Nlc2Ftb3MgbGEgdmFyaWFibGUgcXVlIGNvbnRpZW5lIGxhcyBxdWVqYXMuIEVuIGVzdGUgY2FzbzoKCiAtIFRva2VuaXphbW9zIGVuIHBhbGFicmFzCiAKIC0gUmVtb3ZlbW9zIGxhcyBwYWxhYnJhcyB2YWPDrWFzCiAKIC0gU2VsZWNjaW9uYW1vcyBzb2xvIGxhcyA1MDAgdmFyaWFibGVzIG3DoXMgZnJlY3VlbnRlcwogCiAtIENhbGN1bGFtb3MgKnRmLWlkZioKIApgYGB7ciByZWNldGF9CmNvbXBsYWludHNfcmVjIDwtIGNvbXBsYWludHNfcmVjICU+JQogIHN0ZXBfdG9rZW5pemUoY29uc3VtZXJfY29tcGxhaW50X25hcnJhdGl2ZSkgJT4lCiAgc3RlcF9zdG9wd29yZHMoY29uc3VtZXJfY29tcGxhaW50X25hcnJhdGl2ZSkgJT4lCiAgc3RlcF90b2tlbmZpbHRlcihjb25zdW1lcl9jb21wbGFpbnRfbmFycmF0aXZlLCBtYXhfdG9rZW5zID0gNTAwKSAlPiUKICBzdGVwX3RmaWRmKGNvbnN1bWVyX2NvbXBsYWludF9uYXJyYXRpdmUpCmBgYAoKVW5hIHZleiBlc3BlY2lmaWNhZG9zIGxvcyBwYXNvcywgZXN0YW1vcyBsaXN0b3MgcGFyYSBhcGxpY2FyIG8gCnByZXBhcmFyIChgcHJlcGApIGxhIHJlY2V0YQoKIyMjIFByZXBhcmFyIGxhIHJlY2V0YQoKYGBge3IgcHJlcGFyYWNpb259CmNvbXBsYWludF9wcmVwIDwtIHByZXAoY29tcGxhaW50c19yZWMpCmBgYAoKT3RyYSBmb3JtYSBhbHRlcm5hdGl2YSBkZSB0cmFiYWphciBlcyBkZWZpbmlyIHVuIGZsdWpvIGRlIHRyYWJham8gbyBgd29ya2Zsb3dgIGUgaW5jbHVpciBsb3MgcGFzb3MgZGUgcHJlcHJvY2VzYW1pZW50bywgZWwgcGFzbyBkZQphcGxpY2FyIGVsIG1vZGVsbywgZXRjLiBlbiBlbiBlbCBmbHVqbyBkZSB0cmFiYWpvIHVzYW5kbyBgd29ya2Zsb3dgOgoKYGBge3Igd2Z9CmNvbXBsYWludF93ZiA8LSB3b3JrZmxvdygpICU+JQogIGFkZF9yZWNpcGUoY29tcGxhaW50c19yZWMpCmBgYAoKRWwgc2lndWllbnRlIHBhc28gZXMgZXNwZWNpZmljYXIgZWwgbW9kZWxvCgojIyBDbGFzaWZpY2Fkb3IgYmF5ZXNpYW5vIGluZ2VudW8gKCpOYWl2ZSBCYXllcyBjbGFzc2lmaWVyKikKCkVzIHVuIG1vZGVsbyBiYXN0YW50ZSB1c2FkbyBlbiBOTFAgcG9ycXVlIHBlcm1pdGUgZWwgdXNvIGRlIG11Y2hhcwp2YXJpYWJsZXMgY29tbyBsYXMgcXVlIHNlIHRpZW5lIGN1YW5kbyBzZSBwcm9jZXNhIHRleHRvLiBTZSBiYXNhCmVuIGNhbGN1bGFyIGxhIHByb2JhYmlsaWRhZCBkZSBxdWUgdW4gZWxlbWVudG8gc2UgY2xhc2lmaXF1ZSBkZQpjaWVydGEgbWFuZXJhIHVzYW5kbyBlbCB0ZW9yZW1hIGRlIEJheWVzLiBFbCBhZGpldGl2bwoiaW5nZW51byIgc2UgZGViZSBhIHF1ZSBzZSBwcmVzdW1lIHF1ZSBsYXMgZGlmZXJlbnRlcyB2YXJpYWJsZXMgc29uCmluZGVwZW5kaWVudGVzIHVuYSBkZSBsYSBvdHJhLCBsbyBjdWFsIG5vIGVzIHVuYSBzdXBvc2ljacOzbiBtdXkKcmVhbGlzdGEgZW4gbGEgbWF5b3LDrWEgZGUgbG9zIGNhc29zLiAKCiMjIyBFc3BlY2lmaWNhY2nDs24gZGVsIG1vZGVsbwoKUHJpbWVybyBlc3BlY2lmaWNhbW9zIGVsIHRpcG8gZGUgbW9kZWxvIHkgZWwgKm1vdG9yKiBjb24gZWwgY3VhbApsbyB2YW1vcyBhIGVqZWN1dGFyLiBMbyBkZWwgbW90b3Igc2UgcmVmaWVyZSBhIHF1ZSBoYXkgbWFzIGRlIHVuYQpsaWJyZXLDrWEgZW4gUiBxdWUgc2UgcHVlZGUgdXRpbGl6YXIgcGFyYSBsYSBtaXNtYSB0YXJlYSB5IGVuIGVzZQpwYXNvIGVzcGVjaWZpY2Ftb3MgY3VhbCBlcyBsYSBsaWJyZXLDrWEgZW4gcGFydGljdWxhciBxdWUgcXVlcmVtb3MKdXNhcgoKYGBge3IgbmFpdmViYXllc30KbmJfc3BlYyA8LSBuYWl2ZV9CYXllcygpICU+JQogIHNldF9tb2RlKCJjbGFzc2lmaWNhdGlvbiIpICU+JQogIHNldF9lbmdpbmUoIm5haXZlYmF5ZXMiKQpuYl9zcGVjCmBgYAoKRW4gZXN0ZSBwYXNvIGZpbmFsbWVudGUgYWp1c3RhbW9zIGVsIG1vZGVsby4gUGFyYSBlc28gYcOxYWRpbW9zCmFsIGZsdWpvIGRlIHRyYWJham8gbGEgZXNwZWNpZmljYWNpw7NuIGRlbCBtb2RlbG8geSBsbGFtYW1vcwphIGBmaXRgOgoKYGBge3J9Cm5iX2ZpdCA8LSBjb21wbGFpbnRfd2YgJT4lCiAgYWRkX21vZGVsKG5iX3NwZWMpICU+JQogIGZpdChkYXRhID0gY29tcGxhaW50c190cmFpbikKYGBgCgpFbCBzaWd1aWVudGUgcGFzbyBlcyB2ZXIgcXVlIHRhbiBidWVubyByZXN1bHRhIGVsIG1vZGVsbyBjb21wYXJhbmRvCmVsIGFqdXN0ZSBjb24gZWwgY29uanVudG8gZGUgcHJ1ZWJhLiBTaW4gZW1iYXJnbywgZXMgbWVqb3IKaGFjZXIgZWwgYWp1c3RlIHVzYW5kbyB1bmEgdmFsaWRhY2nDs24gY3J1emFkYSBkZSBkaWV6IHBsaWVnb3MsIGNvbW8KZGlzY3V0aW1vcyBhbnRlcy4KCiMjIyBFdmFsdWFjacOzbgoKRGVmaW5pbW9zIGxvcyBwbGllZ29zLiBQb3IgZGVmZWN0byBzb24gMTAsIGNhZGEgdW5vIGNvbiBlbCA5MCUgZGUgCmRhdG9zIGNvbW8gZW50cmVuYW1pZW50byB5IGVsIDEwJSByZXN0YW50ZSBkZSBldmFsdWFjacOzbgoKYGBge3IgdmFsaWRhY2lvbmNydXphZGF9IApjb21wbGFpbnRzX2ZvbGRzIDwtIHZmb2xkX2N2KGNvbXBsYWludHNfdHJhaW4pCgpjb21wbGFpbnRzX2ZvbGRzCmBgYAoKQWN0dWFsaXphbW9zIG51ZXN0cm8gZmx1am8gZGUgdHJhYmFqbyBwYXJhIGluY2x1aXIgZWwgbW9kZWxvOgoKYGBge3J9Cm5iX3dmIDwtIHdvcmtmbG93KCkgJT4lCiAgYWRkX3JlY2lwZShjb21wbGFpbnRzX3JlYykgJT4lCiAgYWRkX21vZGVsKG5iX3NwZWMpCgpuYl93ZgpgYGAKCnkgYWp1c3RhbW9zIGRlIG51ZXZvIGVsIG1vZGVsbyBlc3RhIHZleiB1c2FuZG8gdmFsaWRhY2nDs24gY3J1emFkYQoKYGBge3J9Cm5iX3JzIDwtIGZpdF9yZXNhbXBsZXMoCiAgbmJfd2YsCiAgY29tcGxhaW50c19mb2xkcywKICBjb250cm9sID0gY29udHJvbF9yZXNhbXBsZXMoc2F2ZV9wcmVkID0gVFJVRSkKKQpgYGAKCkFob3JhIHNpIHJlY29nZW1vcyBsYXMgbcOpdHJpY2FzIHF1ZSBldmFsdWFuIGVsIG1vZGVsbyBlbiAKdG9kb3MgbG9zIHBsaWVnb3MgeSBzdXMgcmVzcGVjdGl2YXMgcHJlZGljY2lvbmVzOgoKYGBge3IgZXZhbHVhY2lvbmJheWVzfQpuYl9yc19tZXRyaWNzIDwtIGNvbGxlY3RfbWV0cmljcyhuYl9ycykKbmJfcnNfcHJlZGljdGlvbnMgPC0gY29sbGVjdF9wcmVkaWN0aW9ucyhuYl9ycykKYGBgCgpMYXMgbcOpdHJpY2FzIHByaW5jaXBhbGVzIHNvbiBsYSBwcmVjaXNpw7NuIChgYWNjdXJhY3lgKSB5IGVsIMOhcmVhCmJham8gbGEgY3VydmEgUk9DLiBBbWJhcyBtw6l0cmljYXMsIG1pZW50cmFzIG3DoXMgY2VyY2FuYXMgYSB1bm8KbWVqb3IuCgpgYGB7cn0KbmJfcnNfbWV0cmljcwpgYGAKClBvZGVtb3MgZGlidWphciBsYSBbY3VydmEgUk9DXShodHRwczovL2VzLndpa2lwZWRpYS5vcmcvd2lraS9DdXJ2YV9ST0MpIHBhcmEgZWwgbW9kZWxvOgoKYGBge3IgY3VydmFyb2N9Cm5iX3JzX3ByZWRpY3Rpb25zICU+JQogIGdyb3VwX2J5KGlkKSAlPiUKICByb2NfY3VydmUodHJ1dGggPSBwcm9kdWN0LCAucHJlZF9EZWJ0KSAlPiUKICBhdXRvcGxvdCgpICsKICBsYWJzKAogICAgY29sb3IgPSBOVUxMLAogICAgdGl0bGUgPSAiUmVjZWl2ZXIgb3BlcmF0b3IgY3VydmUgZm9yIFVTIENvbnN1bWVyIEZpbmFuY2UgQ29tcGxhaW50cyIsCiAgICBzdWJ0aXRsZSA9ICJFYWNoIHJlc2FtcGxlIGZvbGQgaXMgc2hvd24gaW4gYSBkaWZmZXJlbnQgY29sb3IiCiAgKQpgYGAKClRhbWJpw6luIHBvZGVtb3MgdmlzdWFsaXphciBsYSBbbWF0cml6IGRlIGNvbmZ1c2nDs25dKGh0dHBzOi8vZW4ud2lraXBlZGlhLm9yZy93aWtpL0NvbmZ1c2lvbl9tYXRyaXgpLCBlbiBlc3RlIGNhc28sIHBhcmEgZWwgcHJpbWVyIHBsaWVnbwoKYGBge3IgY29uZnVzaW9uMX0KbmJfcnNfcHJlZGljdGlvbnMgJT4lCiAgZmlsdGVyKGlkID09ICJGb2xkMDEiKSAlPiUKICBjb25mX21hdChwcm9kdWN0LCAucHJlZF9jbGFzcykgJT4lCiAgYXV0b3Bsb3QodHlwZSA9ICJoZWF0bWFwIikKYGBgCgpWZWFtb3Mgc2kgZXMgcG9zaWJsZSBtZWpvcmFyIGVzdG9zIHJlc3VsdGFkb3MgY29uIHVuIG1vZGVsbwpkaWZlcmVudGUKCiMjIE1vZGVsbyBkZSBtw6FxdWluYXMgZGUgc29wb3J0ZSB2ZWN0b3JpYWwgKFNWTSkgCgpMb3MgbW9kZWxvcyBkZSBtw6FxdWluYXMgZGUgc29wb3J0ZSB2ZWN0b3JpYWwgc29uIHVuIHRpcG8gZGUgbW9kZWxvCmRlIGFwcmVuZGl6YWplIGF1dG9tw6F0aWNvIHF1ZSAgcHVlZGUgdXNhcnNlIGVuIHRhcmVhcyBkZSBjbGFzaWZpY2FjacOzbiB5IHJlZ3Jlc2nDs24geSBxdWUgaGEgc2lkbyB1c2FkbyBjb24gw6l4aXRvIGVuIHRhcmVhcyBkZSBjbGFzaWZpY2FjacOzbgpkZSB0ZXh0by4KCkNvbXBhcmVtb3MgZWwgbW9kZWxvIGFudGVyaW9yIGNvbiBlc3RlIG1vZGVsbyBhIHZlciBjdWFsIGRlIGxvcwpkb3MgdGllbmUgbWVqb3IgKnBlcmZvcm1hY2UqLgoKSWd1YWwgcXVlIGFudGVzLCBlc3BlY2lmaWNhbW9zIGVsIHRpcG8gZGUgbW9kZWxvIHkgZWwgbW90b3IgZGUKYXByZW5kaXphamU6CgpgYGB7ciBzdm19CnN2bV9zcGVjIDwtIHN2bV9yYmYoKSAlPiUKICBzZXRfbW9kZSgiY2xhc3NpZmljYXRpb24iKSAlPiUKICBzZXRfZW5naW5lKCJsaXF1aWRTVk0iKQoKYGBgCgp5IGRlZmluaW1vcyB1biBudWV2byBmbHVqbyBkZSB0cmFiYWpvIGNvbiBlbCBtaXNtbyBwcmVwcm9jZXNhbWllbnRvIHkgZXN0YSBudWV2YSBlc3BlY2lmaWNhY2nDs24gZGUgbW9kZWxvOgoKYGBge3J9CnN2bV93ZiA8LSB3b3JrZmxvdygpICU+JQogIGFkZF9yZWNpcGUoY29tcGxhaW50c19yZWMpICU+JQogIGFkZF9tb2RlbChzdm1fc3BlYykKYGBgCgpBaG9yYSBhanVzdGFtb3MgZWwgbW9kZWxvLiBDb21vIFNWTSBubyBwcm9kdWNlIHByb2JhYmlsaWRhZGVzIGNvbW8gCmVsIG1vZGVsbyBhbnRlcmlvciwgZXNwZWNpZmljYW1vcyBtZXRyaWNhcyB1biBwb2NvIGRpZmVyZW50ZXM6CgogLSBgc2Vuc2l0aXZpdHlgOiBzZW5zaWJpbGlkYWQgbyB0YXNhIGRlIHZlcmRhZGVyb3MgcG9zaXRpdm9zCiAtIGBzcGVjaWZpY2l0eWA6IGVzcGVjaWZpY2lkYWQgbyB0YXNhIGRlIHZlcmRhZGVyb3MgbmVnYXRpdm9zCgpgYGB7cn0Kc3ZtX3JzIDwtIGZpdF9yZXNhbXBsZXMoCiAgc3ZtX3dmLAogIGNvbXBsYWludHNfZm9sZHMsCiAgbWV0cmljcyA9IG1ldHJpY19zZXQoYWNjdXJhY3ksIHNlbnNpdGl2aXR5LCBzcGVjaWZpY2l0eSksCiAgY29udHJvbCA9IGNvbnRyb2xfcmVzYW1wbGVzKHNhdmVfcHJlZCA9IFRSVUUpCikKYGBgCgpSZWNvcGlsYW1vcyBsYXMgbWV0cmljYXMgZGVsIGFqdXN0ZSBhbnRlcmlvcjoKCmBgYHtyIGV2YWxzdm19CnN2bV9yc19tZXRyaWNzIDwtIGNvbGxlY3RfbWV0cmljcyhzdm1fcnMpCnN2bV9yc19wcmVkaWN0aW9ucyA8LSBjb2xsZWN0X3ByZWRpY3Rpb25zKHN2bV9ycykKYGBgCgpgYGB7cn0Kc3ZtX3JzX21ldHJpY3MKYGBgCgpMYSBwcmVjaXNpw7NuIG1lam9yw7MuIFZlYW1vcyBhaG9yYSBsYSBtYXRyaXogZGUgY29uZnVzacOzbjoKCmBgYHtyfQpzdm1fcnNfcHJlZGljdGlvbnMgJT4lCiAgZmlsdGVyKGlkID09ICJGb2xkMDEiKSAlPiUKICBjb25mX21hdChwcm9kdWN0LCAucHJlZF9jbGFzcykgJT4lCiAgYXV0b3Bsb3QodHlwZSA9ICJoZWF0bWFwIikKYGBgCgpNZWpvcsOzIHRhbWJpw6luIGxhIHNlcGFyYWNpw7NuIGVudHJlIGxhcyBjbGFzZXMuCgpBaG9yYSwgcG9uZ2Ftb3NsZSBsYXMgY29zYXMgdW4gcG9jbyBtw6FzIGNvbXBsaWNhZGFzIGFsIG1vZGVsbwpoYWNpZW5kbyB1bmEgY2xhc2lmaWNhY2nDs24gbcO6bHRpcGxlCgojIENsYXNpZmljYWNpw7NuIG11bHRpcGxlCgpgYGB7cn0Kc2V0LnNlZWQoMTIzNCkKCm11bHRpY29tcGxhaW50c19zcGxpdCA8LSBpbml0aWFsX3NwbGl0KGNvbXBsYWludHMsIHN0cmF0YSA9IHByb2R1Y3QpCgptdWx0aWNvbXBsYWludHNfdHJhaW4gPC0gdHJhaW5pbmcobXVsdGljb21wbGFpbnRzX3NwbGl0KQptdWx0aWNvbXBsYWludHNfdGVzdCA8LSB0ZXN0aW5nKG11bHRpY29tcGxhaW50c19zcGxpdCkKYGBgCgpgYGB7cn0KbXVsdGljb21wbGFpbnRzX3JlYyA8LQogIHJlY2lwZShwcm9kdWN0IH4gZGF0ZV9yZWNlaXZlZCArIHRhZ3MgKyBjb25zdW1lcl9jb21wbGFpbnRfbmFycmF0aXZlLAogICAgZGF0YSA9IG11bHRpY29tcGxhaW50c190cmFpbgogICkgJT4lCiAgc3RlcF9kYXRlKGRhdGVfcmVjZWl2ZWQsIGZlYXR1cmVzID0gYygibW9udGgiLCAiZG93IiksIHJvbGUgPSAiZGF0ZXMiKSAlPiUKICBzdGVwX3JtKGRhdGVfcmVjZWl2ZWQpICU+JQogIHN0ZXBfZHVtbXkoaGFzX3JvbGUoImRhdGVzIikpICU+JQogIHN0ZXBfdW5rbm93bih0YWdzKSAlPiUKICBzdGVwX2R1bW15KHRhZ3MpICU+JQogIHN0ZXBfdG9rZW5pemUoY29uc3VtZXJfY29tcGxhaW50X25hcnJhdGl2ZSkgJT4lCiAgc3RlcF9zdG9wd29yZHMoY29uc3VtZXJfY29tcGxhaW50X25hcnJhdGl2ZSkgJT4lCiAgc3RlcF90b2tlbmZpbHRlcihjb25zdW1lcl9jb21wbGFpbnRfbmFycmF0aXZlLCBtYXhfdG9rZW5zID0gNTAwKSAlPiUKICBzdGVwX3RmaWRmKGNvbnN1bWVyX2NvbXBsYWludF9uYXJyYXRpdmUpICU+JQogIHN0ZXBfZG93bnNhbXBsZShwcm9kdWN0KQpgYGAKCmBgYHtyfQptdWx0aWNvbXBsYWludHNfZm9sZHMgPC0gdmZvbGRfY3YobXVsdGljb21wbGFpbnRzX3RyYWluKQpgYGAKCmBgYHtyfQptdWx0aV9zdm1fd2YgPC0gd29ya2Zsb3coKSAlPiUKICBhZGRfcmVjaXBlKG11bHRpY29tcGxhaW50c19yZWMpICU+JQogIGFkZF9tb2RlbChzdm1fc3BlYykKCm11bHRpX3N2bV93ZgpgYGAKCmBgYHtyfQptdWx0aV9zdm1fcnMgPC0gZml0X3Jlc2FtcGxlcygKICBtdWx0aV9zdm1fd2YsCiAgbXVsdGljb21wbGFpbnRzX2ZvbGRzLAogIG1ldHJpY3MgPSBtZXRyaWNfc2V0KGFjY3VyYWN5KSwKICBjb250cm9sID0gY29udHJvbF9yZXNhbXBsZXMoc2F2ZV9wcmVkID0gVFJVRSkKKQpgYGAKCmBgYHtyfQptdWx0aV9zdm1fcnMKYGBgCgpgYGB7cn0KbXVsdGlfc3ZtX3JzX21ldHJpY3MgPC0gY29sbGVjdF9tZXRyaWNzKG11bHRpX3N2bV9ycykKbXVsdGlfc3ZtX3JzX3ByZWRpY3Rpb25zIDwtIGNvbGxlY3RfcHJlZGljdGlvbnMobXVsdGlfc3ZtX3JzKQpgYGAKCmBgYHtyfQptdWx0aV9zdm1fcnNfbWV0cmljcwpgYGAKCmBgYHtyfQptdWx0aV9zdm1fcnNfcHJlZGljdGlvbnMgJT4lCiAgZmlsdGVyKGlkID09ICJGb2xkMDEiKSAlPiUKICBjb25mX21hdChwcm9kdWN0LCAucHJlZF9jbGFzcykgJT4lCiAgYXV0b3Bsb3QodHlwZSA9ICJoZWF0bWFwIikgKwogIHNjYWxlX3lfZGlzY3JldGUobGFiZWxzID0gZnVuY3Rpb24oeCkgc3RyX3dyYXAoeCwgMjApKSArCiAgc2NhbGVfeF9kaXNjcmV0ZShsYWJlbHMgPSBmdW5jdGlvbih4KSBzdHJfd3JhcCh4LCAyMCkpCgpgYGAKCmBgYHtyfQptdWx0aV9zdm1fcnNfcHJlZGljdGlvbnMgJT4lCiAgZmlsdGVyKGlkID09ICJGb2xkMDEiKSAlPiUKICBmaWx0ZXIoLnByZWRfY2xhc3MgIT0gcHJvZHVjdCkgJT4lCiAgY29uZl9tYXQocHJvZHVjdCwgLnByZWRfY2xhc3MpICU+JQogIGF1dG9wbG90KHR5cGUgPSAiaGVhdG1hcCIpICsKICBzY2FsZV95X2Rpc2NyZXRlKGxhYmVscyA9IGZ1bmN0aW9uKHgpIHN0cl93cmFwKHgsIDIwKSkgKwogIHNjYWxlX3hfZGlzY3JldGUobGFiZWxzID0gZnVuY3Rpb24oeCkgc3RyX3dyYXAoeCwgMjApKQoKYGBgCgojIExvcyBtZWNhbmlzbW9zIGRlIGFub25pbWl6YWNpw7NuCgojIFJlZmVyZW5jaWFz</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("02_clasificacion.Rmd");
+  window.initializeCodeFolding("show" === "show");
+});
+</script>
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
