@@ -1,0 +1,7 @@
+---
+title: "Acerca"
+---
+Desarrollado por:
+  Magdiel Ablan Bortone (mablan@gmail.com)
+
+Bajo la supervisión de los miembros del proyecto **ICONOS**
